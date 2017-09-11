@@ -23,7 +23,7 @@ public class S3Store {
     public static void main(String[] args) throws IOException {
         AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
                 .withRegion(Regions.US_WEST_2)
-                .withCredentials(new AWSStaticCredentialsProvider(credentials()))
+                .withCredentials(new AWSStaticCredentialsProvider(EC2.credentials()))
                 .build();
         try {
             String key = "acs";
@@ -70,7 +70,7 @@ public class S3Store {
     public static String getTag(String name) {
         AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
                 .withRegion(Regions.US_WEST_2)
-                .withCredentials(new AWSStaticCredentialsProvider(credentials()))
+                .withCredentials(new AWSStaticCredentialsProvider(EC2.credentials()))
                 .build();
             System.out.println("Downloading an object");
             S3Object s3object = s3Client.getObject(new GetObjectRequest(
@@ -94,11 +94,6 @@ public class S3Store {
             System.out.println("    " + line);
         }
         System.out.println();
-    }
-    public static BasicAWSCredentials credentials() {
-        BasicAWSCredentials awsCreds = new BasicAWSCredentials("AKIAI5RITG7P537CKOXA",
-                "GuVYLtPwm3EFOYpswlOQFvzCHilKIUA+yg+RfwL/");
-        return  awsCreds;
     }
 
 }

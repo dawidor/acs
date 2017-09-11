@@ -28,18 +28,12 @@ public class Deploy {
         return result;
     }
 
-    public static BasicAWSCredentials credentials() {
-        BasicAWSCredentials awsCreds = new BasicAWSCredentials("AKIAI5RITG7P537CKOXA",
-                "GuVYLtPwm3EFOYpswlOQFvzCHilKIUA+yg+RfwL/");
-        return  awsCreds;
-    }
-
     public static CreateApplicationResult createApplication(String applicationName) {
 
         CreateApplicationRequest request = new CreateApplicationRequest();
 
 
-        AWSStaticCredentialsProvider provider = new AWSStaticCredentialsProvider(credentials());
+        AWSStaticCredentialsProvider provider = new AWSStaticCredentialsProvider(EC2.credentials());
 
         AmazonCodeDeploy deploy = Deploy.connect(provider);
 
@@ -83,7 +77,7 @@ public class Deploy {
        // deployGroupRequest.setServiceRoleArn("arn:aws:iam::894794566272:role/CodeStarWorker-acs-CodeDeploy");
 
         deployGroupRequest.setServiceRoleArn("arn:aws:iam::894794566272:role/ServiceDeploy");
-        AWSStaticCredentialsProvider provider = new AWSStaticCredentialsProvider(credentials());
+        AWSStaticCredentialsProvider provider = new AWSStaticCredentialsProvider(EC2.credentials());
         AmazonCodeDeploy deploy = Deploy.connect(provider);
         CreateDeploymentGroupResult result = deploy.createDeploymentGroup(deployGroupRequest);
 
@@ -109,7 +103,7 @@ public class Deploy {
         revision.setS3Location(loc);
         deployRequest.setRevision(revision);
 
-        AWSStaticCredentialsProvider provider = new AWSStaticCredentialsProvider(credentials());
+        AWSStaticCredentialsProvider provider = new AWSStaticCredentialsProvider(EC2.credentials());
         AmazonCodeDeploy deploy = Deploy.connect(provider);
         CreateDeploymentResult result = deploy.createDeployment(deployRequest);
 
