@@ -1,9 +1,6 @@
 package com.chatbot.controller;
 
-import com.chatbot.models.Id;
-import com.chatbot.models.Post;
-import com.chatbot.models.Posts;
-import com.chatbot.models.Webhook;
+import com.chatbot.models.*;
 import org.apache.log4j.Logger;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -16,7 +13,7 @@ public class MattermostService {
 
     private RestTemplate restTemplate = null;
 
-  //  private String ip = "localhost";
+   // private String ip = "localhost";
     private String port = "80";
     private String ip = "35.166.77.80";
 
@@ -158,9 +155,13 @@ public class MattermostService {
     public Id postMessage(String channelId, String message) {
         String url = "/posts";
 
-        String requestJson = "{\"channel_id\": \"" + channelId + "\"," +
-                "\"message\": \"" + message + "\"}";
-        HttpEntity<String> entity = new HttpEntity<String>(requestJson, getHeader());
+//        String requestJson = "{\"channel_id\": \"" + channelId + "\"," +
+//                "\"message\": \"" + message + "\"}";
+        ResponseMessage msg = new ResponseMessage();
+        msg.setChannel_id(channelId);
+        msg.setMessage(message);
+
+        HttpEntity<ResponseMessage> entity = new HttpEntity<>(msg, getHeader());
         Id result = restTemplate.postForObject(baseURL + url, entity, Id.class);
 
         return result;

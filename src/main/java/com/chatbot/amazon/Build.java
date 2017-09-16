@@ -23,7 +23,7 @@ public class Build {
 
     public static CreateProjectResult createProject(AWSCodeBuild codeBuild,
                                              String projectName,
-                                             String location) {
+                                             String location, String typeStr) {
         CreateProjectRequest projectRequest = new CreateProjectRequest();
         projectRequest.setName(projectName);
 
@@ -33,7 +33,16 @@ public class Build {
 
         projectRequest.setArtifacts(artifact);
 
-        projectRequest.setSource(getProjectSource(location));
+        SourceType type = null;
+        if ("bitbucket".equalsIgnoreCase(typeStr)) {
+            type = SourceType.BITBUCKET;
+        } else if ("github".equalsIgnoreCase(typeStr)) {
+            type = SourceType.GITHUB;
+        } else {
+            type = SourceType.CODECOMMIT;
+        }
+
+        projectRequest.setSource(getProjectSource(location, type));
 
         projectRequest.setEnvironment(getEnvironment());
 
@@ -53,18 +62,30 @@ public class Build {
         return artifact;
     }
 
-    private static ProjectSource getProjectSource(String repoLocation) {
+    private static ProjectSource getProjectSource(String repoLocation, SourceType type) {
         ProjectSource ps = new ProjectSource();
         ps.setLocation(repoLocation);
-        ps.setType(SourceType.CODECOMMIT);
+        ps.setType(type);
         ps.setAuth(getAuth());
-        ps.setType(SourceType.CODECOMMIT);
+        ps.setBuildspec("version: 0.2\n" +
+                "\n" +
+                "phases:\n" +
+                "  build:\n" +
+                "    commands:\n" +
+                "      - mvn package\n" +
+                "\n" +
+                "artifacts:\n" +
+                "  files:\n" +
+                "    - target/*.war\n");
+
         return ps;
     }
 
     private static SourceAuth getAuth() {
         SourceAuth auth = new SourceAuth();
         auth.setType(SourceAuthType.OAUTH);
+
+
         return auth;
     }
 
@@ -72,13 +93,11 @@ public class Build {
         ProjectEnvironment env = new ProjectEnvironment();
         env.setComputeType(ComputeType.BUILD_GENERAL1_SMALL);
         env.setType(EnvironmentType.LINUX_CONTAINER);
+
         env.setImage("aws/codebuild/java:openjdk-8");
         return env;
     }
 
-    //s3://aws-codestar-us-west-2-894794566272/acs/target/ROOT.war
+
 }
 
- //d-FU7MWYGCO
-
-        // aws deploy list-deployment-instances --deployment-id d-FU7MWYGCO --instance-status-filter Succeeded

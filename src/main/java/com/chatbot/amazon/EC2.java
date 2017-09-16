@@ -47,34 +47,37 @@ public class EC2
 
         //AmazonEC2Client c;
 
+
+
         AWSCodeBuild codeBuild = Build.connect(provider);
+
+        BatchGetProjectsRequest r = new BatchGetProjectsRequest();
+        r.withNames("lalala");
+        BatchGetProjectsResult res  = codeBuild.batchGetProjects(r);
+
 
 ListBuildsRequest requestBuilds = new ListBuildsRequest();
 
 
-       // String token = codeBuild.listBuilds(requestBuilds).getNextToken();
-//        AWSSecurityTokenServiceClient stsClient = new AWSSecurityTokenServiceClient();
- //       stsClient.setEndpoint("ts.us-west-2.amazonaws.com");
-
         String projectName = "ChatBot";
-        String location = "https://git-codecommit.us-west-2.amazonaws.com/v1/repos/acs\"";
-
-            StartBuildRequest build = new StartBuildRequest();
-        build.setProjectName("ChatBot");
-        build.setRequestCredentialsProvider(provider);
-        ProjectArtifacts artifactsOverride = new ProjectArtifacts();
-        artifactsOverride.setType(ArtifactsType.CODEPIPELINE);
-        artifactsOverride.setLocation(location);
-        //artifactsOverride.
-
-        build.setArtifactsOverride(artifactsOverride);
-
-        StartBuildResult startBuildResult = codeBuild.startBuild(build);
-
-
-
-        //Build.createProject(codeBuild, projectName, location);
-
+//        String location = "https://git-codecommit.us-west-2.amazonaws.com/v1/repos/acs\"";
+//
+//            StartBuildRequest build = new StartBuildRequest();
+//        build.setProjectName("ChatBot");
+//        build.setRequestCredentialsProvider(provider);
+//        ProjectArtifacts artifactsOverride = new ProjectArtifacts();
+//        artifactsOverride.setType(ArtifactsType.CODEPIPELINE);
+//        artifactsOverride.setLocation(location);
+//        //artifactsOverride.
+//
+//        build.setArtifactsOverride(artifactsOverride);
+//
+//        StartBuildResult startBuildResult = codeBuild.startBuild(build);
+//
+//
+//
+//        //Build.createProject(codeBuild, projectName, location);
+//
 
 
         codeBuild.shutdown();
@@ -90,11 +93,10 @@ ListBuildsRequest requestBuilds = new ListBuildsRequest();
 
 
     public static BasicAWSCredentials credentials() {
-
-        String accessKey = System.getenv().get("ACCESS_KEY");
-        String secretKey = System.getenv().get("SECRET_KEY");
-        BasicAWSCredentials awsCreds = new BasicAWSCredentials(accessKey,
-                secretKey);
+        String accessKey = System.getProperty("ACCESS_KEY");
+        String secretKey = System.getProperty("SECRET_KEY");
+        BasicAWSCredentials awsCreds = new BasicAWSCredentials("AKIAI5RITG7P537CKOXA",
+                "GuVYLtPwm3EFOYpswlOQFvzCHilKIUA+yg+RfwL/");
         return  awsCreds;
     }
     public static AmazonEC2 connect() {
@@ -151,8 +153,16 @@ ListBuildsRequest requestBuilds = new ListBuildsRequest();
                 "pip install boto3\n" +
                 "pip install pycrypto\n" +
                 "yum install -y java-1.8.0-openjdk-devel\n" +
-                "yum remove -y java-1.7.0-openjdk\n";
-
+                "yum remove -y java-1.7.0-openjdk\n" +
+                "wget https://s3.amazonaws.com/dhqs-mirror-iad/apache-tomcat-8.0.39.tar.gz\n" +
+                "mkdir /opt/tomcat\n" +
+                "tar xvf apache-tomcat-8*tar.gz -C /opt/tomcat --strip-components=1\n" +
+                "cd /opt/tomcat\n" +
+                "sed -i 's|port=\"8080\"|port=\"80\"|g' conf/server.xml\n" +
+                "rm -rf webapps/ROOT\n" +
+                "chgrp ec2-user webapps/\n" +
+                "chmod 774   webapps/\n" +
+                "bin/startup.sh";
 
         BASE64Encoder encoder = new BASE64Encoder();
         userdata = encoder.encode(userdata.getBytes());
@@ -216,15 +226,19 @@ ListBuildsRequest requestBuilds = new ListBuildsRequest();
             for(Reservation reservation : response.getReservations()) {
                 for(Instance instance : reservation.getInstances()) {
 
-                    sb.append("Found reservation with id: ").append(instance.getInstanceId()).append(",\\n")
-                            .append("Name: ").append(instance.getKeyName()).append(",")
-                            .append("AMI: ").append(instance.getImageId()).append(",")
-                            .append("type: ").append(instance.getVirtualizationType()).append(",")
-                            .append("state: ").append(instance.getState().getName()).append(",")
-                            .append("iam: ").append(instance.getIamInstanceProfile()!=null ? instance.getIamInstanceProfile().getId() : "").append(" ")
-                            .append(instance.getIamInstanceProfile()!=null ? instance.getIamInstanceProfile().getArn() : "").append(",\\n");
-                           // .append("monitoring state: ").append(instance.getMonitoring().getState()).append("");
-                   // instance.getIamInstanceProfile().
+
+                    sb.append("Id: ").append(instance.getInstanceId()).append(" \n ")
+                            .append("Name: ").append(instance.getKeyName()).append(" \n ")
+                            .append("AMI: ").append(instance.getImageId()).append(" \n ")
+                            .append("Type: ").append(instance.getVirtualizationType()).append(" \n ")
+                            .append("State: ").append(instance.getState().getName()).append(" \n ")
+                            .append("IAM: ").append(instance.getIamInstanceProfile()!=null ? instance.getIamInstanceProfile().getId() : "").append(" \n ")
+                            .append(instance.getIamInstanceProfile()!=null ? instance.getIamInstanceProfile().getArn() : "").append(" \n ");
+
+                    instance.getTags().forEach(tag -> {
+                        sb.append("Tag-name: " + tag.getKey()).append(" value: " + tag.getValue()).append(" \n ");
+                    });
+                    sb.append("\n");
                 }
             }
 
@@ -250,9 +264,9 @@ ListBuildsRequest requestBuilds = new ListBuildsRequest();
     public static void setIamProfile(AmazonEC2 ec2, String instanceId) {
 
         IamInstanceProfileSpecification profileSpec = new IamInstanceProfileSpecification();
-        profileSpec.setArn("arn:aws:iam::894794566272:instance-profile/awscodestar-acs-WebAppInstanceProfile-PXO9JYELWVOS");
+       //profileSpec.setArn("arn:aws:iam::894794566272:instance-profile/awscodestar-acs-WebAppInstanceProfile-PXO9JYELWVOS");
         //profileSpec.setArn("arn:aws:iam::894794566272:instance-profile/InstanceRoleS3");
-        //profileSpec.setName("InstanceRoleS3");
+        profileSpec.setName("InstanceRoleS3");
 //profileSpec.setName("CodeStarWorker-acs-WebApp");
         AssociateIamInstanceProfileRequest profile = new AssociateIamInstanceProfileRequest();
         profile.setIamInstanceProfile(profileSpec);

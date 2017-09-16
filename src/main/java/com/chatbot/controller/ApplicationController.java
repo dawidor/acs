@@ -25,7 +25,7 @@ public class ApplicationController {
     private static final Logger log = Logger.getLogger(ApplicationController.class);
 
     private MattermostService mattermostService;
-    private Memory botMemory = null;
+    private BotMemory botMemory = null;
 
     public ApplicationController() {
         botMemory = new BotMemory();
@@ -53,15 +53,22 @@ public class ApplicationController {
         words.add("Bot");
         words.add("BOT");
         words.add("help");
+        words.add("Help");
+        words.add("memory");
+        words.add("Memory");
+        words.add("mh");
+        words.add("Mh");
+        words.add("Ss");
+        words.add("ss");
+        words.add("SS"); //search memory
 
 
-
-        mattermostService.createWebhook(teamId.getId(), channelId.getId(),
+        String result = mattermostService.createWebhook(teamId.getId(), channelId.getId(),
                 "/callback/message/",
                 words);
         System.out.println(user);
 
-        return new Response("Done");
+        return new Response("Done: + " + result);
     }
 
     private void deleteWebhooksOut(Id teamId, Id channelId) {
@@ -86,11 +93,16 @@ public class ApplicationController {
 //        }
     }
 
-    @RequestMapping(method = RequestMethod.POST)
+    @RequestMapping(method = RequestMethod.POST, produces = {"application/json"})
     public Response callback(@RequestBody Message message) {
 
+        log.debug(message.toString());
+        botMemory.addMessage(message);
         Message resp = botMemory.getAnswear(message);
+        botMemory.addMessage(resp);
+        log.debug(resp.toString());
         mattermostService.postMessage(message.getChannel_id(), resp.getText());
+
 
         return new Response("Got message: " + message.getUser_name()
                 + " : " + message.getPost_id() + " : " + message.getText());

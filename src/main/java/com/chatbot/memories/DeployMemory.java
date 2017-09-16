@@ -15,6 +15,7 @@ public class DeployMemory implements Memory {
     public static final String CREATE = "create";
     public static final String RUN = "run";
     public static final String DEPLOYMENT_GROUP = "DeploymentGroup";
+    public static final String ETAG = "etag=";
 
     @Override
     public Message getAnswear(Message message) {
@@ -39,10 +40,10 @@ public class DeployMemory implements Memory {
                         );
                 result.setText("Application to deploy created. You can run deployment now...");
             } else if (words.contains(RUN) && wordsArray.length==5) {
-                List<String> etagList = Memory.getValue(words, "etag=");
+                List<String> etagList = Memory.getValue(words, ETAG);
                 String etag = null;
                 if (etagList!=null && etagList.size()>0) {
-                    etag = etagList.get(0).replaceAll("etag=", "");
+                    etag = etagList.get(0).replaceAll(ETAG, "");
                 }
                 Deploy.createDeployment(applicationName, applicationName + DEPLOYMENT_GROUP, etag);
                 result.setText("Deployment for " + applicationName + " started...");
