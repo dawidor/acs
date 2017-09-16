@@ -24,6 +24,7 @@ public class BuildMemory implements Memory {
     public static final String NAMES = "name=";
     public static final String START = "start";
     public static final String TYPE = "type=";
+    public static final String YES = "yes";
 
     @Override
     public Message getAnswear(Message message) {
@@ -50,7 +51,14 @@ public class BuildMemory implements Memory {
                     type = types.get(0).replaceAll(TYPE, "");
                 }
 
-                CreateProjectResult buildResult = Build.createProject(codeBuild, projectName, repoLocation, type);
+                List<String> zips = Memory.getValue(words, "zip=");
+                String zip = null;
+                if (zips!=null && zips.size()>0) {
+                    zip = zips.get(0).replaceAll("zip=", "");
+                }
+
+                CreateProjectResult buildResult = Build.createProject(codeBuild, projectName,
+                        repoLocation, type, YES.equalsIgnoreCase(zip));
                 String text = "Project " + projectName + " created..." + buildResult.getProject().toString();
                 if (type.equalsIgnoreCase("github")
                         || type.equalsIgnoreCase("bitbucket")) {

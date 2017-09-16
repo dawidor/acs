@@ -23,13 +23,13 @@ public class Build {
 
     public static CreateProjectResult createProject(AWSCodeBuild codeBuild,
                                              String projectName,
-                                             String location, String typeStr) {
+                                             String location, String typeStr, boolean zip) {
         CreateProjectRequest projectRequest = new CreateProjectRequest();
         projectRequest.setName(projectName);
 
         projectRequest.setServiceRole("arn:aws:iam::894794566272:role/CodeStarWorker-acs-CodeBuild");
 
-        ProjectArtifacts artifact = getArtifact(projectName);
+        ProjectArtifacts artifact = getArtifact(projectName, zip);
 
         projectRequest.setArtifacts(artifact);
 
@@ -51,14 +51,18 @@ public class Build {
         return result;
     }
 
-    private static ProjectArtifacts getArtifact(String artifactName) {
+    private static ProjectArtifacts getArtifact(String artifactName, boolean zip) {
         ProjectArtifacts artifact = new ProjectArtifacts();
         artifact.setName(artifactName);
         artifact.setType(ArtifactsType.S3);
         artifact.setLocation("arn:aws:s3:::aws-codestar-us-west-2-894794566272");
         artifact.setNamespaceType(ArtifactNamespace.NONE);
         //artifact.setNamespaceType(ArtifactNamespace.BUILD_ID);
-        artifact.setPackaging(ArtifactPackaging.ZIP);
+        if (zip) {
+            artifact.setPackaging(ArtifactPackaging.ZIP);
+        } else {
+            artifact.setPackaging(ArtifactPackaging.NONE);
+        }
         return artifact;
     }
 
