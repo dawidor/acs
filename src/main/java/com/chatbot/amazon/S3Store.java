@@ -90,7 +90,7 @@ public class S3Store {
                     bucketName, appName));
 
             S3ObjectInputStream input = s3object.getObjectContent();
-            FileOutputStream fos = new FileOutputStream(new File(TMP + appName + ZIP));
+            FileOutputStream fos = new FileOutputStream(new File(TMP + appName + ".war"));
             long size = s3object.getObjectMetadata().getContentLength();
             long done = 0;
             byte[] read_buf = new byte[1024];

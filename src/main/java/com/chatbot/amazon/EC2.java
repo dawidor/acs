@@ -95,8 +95,8 @@ ListBuildsRequest requestBuilds = new ListBuildsRequest();
     public static BasicAWSCredentials credentials() {
         String accessKey = System.getProperty("ACCESS_KEY");
         String secretKey = System.getProperty("SECRET_KEY");
-        BasicAWSCredentials awsCreds = new BasicAWSCredentials("AKIAI5RITG7P537CKOXA",
-                "GuVYLtPwm3EFOYpswlOQFvzCHilKIUA+yg+RfwL/");
+        BasicAWSCredentials awsCreds = new BasicAWSCredentials(accessKey,
+                secretKey);
         return  awsCreds;
     }
     public static AmazonEC2 connect() {
