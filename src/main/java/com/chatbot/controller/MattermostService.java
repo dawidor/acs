@@ -13,9 +13,9 @@ public class MattermostService {
 
     private RestTemplate restTemplate = null;
 
-   // private String ip = "localhost";
-    private String port = "80";
-    private String ip = "35.166.77.80";
+    private String ip = "localhost";
+    private String port = "8080";
+    //private String ip = "35.166.77.80";
 
 
     final String baseURL = "http://" + ip + ":8065/api/v4";
